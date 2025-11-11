@@ -25,17 +25,23 @@
   </form>
 
   <script>
-    const webAppURL = 'https://script.google.com/macros/s/AKfycbyt-aiJ2iTDH5OOd6xST8SuZyEopV-goZOrm_kMRxo94Rf-R5Dyuem23rUf0IUk7sGtkA/exec'; //
+    const webAppURL = 'https://script.google.com/macros/s/AKfycbyt-aiJ2iTDH5OOd6xST8SuZyEopV-goZOrm_kMRxo94Rf-R5Dyuem23rUf0IUk7sGtkA/exec';
 
     async function loadLocations() {
-      const res = await fetch(webAppURL);
-      const locations = await res.json();
-      const container = document.getElementById('locationsContainer');
-      locations.forEach(loc => {
-        const label = document.createElement('label');
-        label.innerHTML = `<input type="checkbox" value="${loc}" class="mr-2">${loc}`;
-        container.appendChild(label);
-      });
+      try {
+        const res = await fetch(webAppURL);
+        const locations = await res.json();
+        const container = document.getElementById('locationsContainer');
+        locations.forEach(loc => {
+          const label = document.createElement('label');
+          label.innerHTML = `<input type="checkbox" value="${loc}" class="mr-2">${loc}`;
+          container.appendChild(label);
+        });
+      } catch (err) {
+        console.error("Failed to load locations:", err);
+        const container = document.getElementById('locationsContainer');
+        container.innerHTML = "<p class='text-red-500'>Failed to load locations. Check Apps Script URL.</p>";
+      }
     }
     loadLocations();
 
@@ -54,6 +60,7 @@
       };
 
       responseMessage.textContent = "Submitting...";
+      responseMessage.classList.remove('text-green-600','text-red-600');
       responseMessage.classList.add('text-gray-500');
 
       try {
@@ -65,15 +72,16 @@
         const result = await res.json();
         if (result.result === 'success') {
           responseMessage.textContent = "✅ Thanks for subscribing!";
-          responseMessage.classList.remove('text-gray-500');
+          responseMessage.classList.remove('text-gray-500','text-red-600');
           responseMessage.classList.add('text-green-600');
           form.reset();
         } else {
           throw new Error(result.message || "Unknown error");
         }
       } catch (err) {
-        responseMessage.textContent = "❌ Something went wrong.";
-        responseMessage.classList.remove('text-gray-500');
+        console.error(err);
+        responseMessage.textContent = "❌ Something went wrong. Check Apps Script URL and permissions.";
+        responseMessage.classList.remove('text-gray-500','text-green-600');
         responseMessage.classList.add('text-red-600');
       }
     });
