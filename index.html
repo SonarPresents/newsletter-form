@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter Signup</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <form id="signupForm" class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Join Our Newsletter</h2>
+
+    <label class="block font-medium mb-1">Name</label>
+    <input type="text" id="name" required class="w-full p-2 border rounded mb-4">
+
+    <label class="block font-medium mb-1">Email</label>
+    <input type="email" id="email" required class="w-full p-2 border rounded mb-4">
+
+    <label class="block font-medium mb-1">Locations</label>
+    <div id="locationsContainer" class="grid grid-cols-2 gap-2 mb-4"></div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Subscribe</button>
+    <p id="responseMessage" class="mt-4 text-center text-sm"></p>
+  </form>
+
+  <script>
+    const webAppURL = 'https://script.google.com/macros/s/AKfycbzPiuTjOwmf7QznIEn4u7IDgrJ9GJ_Zia3zGtIItKjJGiJ5H0thBUvLb4kO0jiaZwvD8Q/exec'; //
+
+    async function loadLocations() {
+      const res = await fetch(webAppURL);
+      const locations = await res.json();
+      const container = document.getElementById('locationsContainer');
+      locations.forEach(loc => {
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${loc}" class="mr-2">${loc}`;
+        container.appendChild(label);
+      });
+    }
+    loadLocations();
+
+    const form = document.getElementById('signupForm');
+    const responseMessage = document.getElementById('responseMessage');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const selectedLocations = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+        .map(el => el.value);
+
+      const data = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        locations: selectedLocations
+      };
+
+      responseMessage.textContent = "Submitting...";
+      responseMessage.classList.add('text-gray-500');
+
+      try {
+        const res = await fetch(webAppURL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await res.json();
+        if (result.result === 'success') {
+          responseMessage.textContent = "✅ Thanks for subscribing!";
+          responseMessage.classList.remove('text-gray-500');
+          responseMessage.classList.add('text-green-600');
+          form.reset();
+        } else {
+          throw new Error(result.message || "Unknown error");
+        }
+      } catch (err) {
+        responseMessage.textContent = "❌ Something went wrong.";
+        responseMessage.classList.remove('text-gray-500');
+        responseMessage.classList.add('text-red-600');
+      }
+    });
+  </script>
+</body>
+</html>
