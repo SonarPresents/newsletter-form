@@ -25,26 +25,29 @@
   </form>
 
   <script>
-    const webAppURL = 'https://script.google.com/macros/s/AKfycbx--K0fRg88VvBhqg7ODgp36vdraPYpqVLmlcnvb9m2Sx4PzmBc-iypz8rxTF7JWOzXtg/exec';
+    // ✅ Replace with YOUR Apps Script Web App URL
+    const webAppURL = 'https://script.google.com/macros/s/AKfycbyh1Kd6mWl7EzEr8ujLPCHDJ9THAcOU4_MpDt1qr9GPESeMvDOBLaopG5OJ4JRIR1zrYA/exec';
 
-    async function loadLocations() {
-      try {
-        const res = await fetch(webAppURL);
-        const locations = await res.json();
-        const container = document.getElementById('locationsContainer');
-        locations.forEach(loc => {
-          const label = document.createElement('label');
-          label.innerHTML = `<input type="checkbox" value="${loc}" class="mr-2">${loc}`;
-          container.appendChild(label);
-        });
-      } catch (err) {
-        console.error("Failed to load locations:", err);
-        const container = document.getElementById('locationsContainer');
-        container.innerHTML = "<p class='text-red-500'>Failed to load locations. Check Apps Script URL.</p>";
-      }
+    // ✅ Hardcoded location options
+    const locations = [
+      "South West", "South East", "Midlands", "North West", "North East",
+      "Wales", "Scotland", "Bristol", "London", "Birmingham",
+      "Manchester", "Newcastle", "Leeds", "International"
+    ];
+
+    // Load locations into checkboxes
+    function loadLocations() {
+      const container = document.getElementById('locationsContainer');
+      locations.forEach(loc => {
+        const label = document.createElement('label');
+        label.classList.add('flex', 'items-center');
+        label.innerHTML = `<input type="checkbox" value="${loc}" class="mr-2">${loc}`;
+        container.appendChild(label);
+      });
     }
     loadLocations();
 
+    // Handle form submission
     const form = document.getElementById('signupForm');
     const responseMessage = document.getElementById('responseMessage');
 
@@ -80,7 +83,7 @@
         }
       } catch (err) {
         console.error(err);
-        responseMessage.textContent = "❌ Something went wrong. Check Apps Script URL and permissions.";
+        responseMessage.textContent = "❌ Something went wrong. Please try again.";
         responseMessage.classList.remove('text-gray-500','text-green-600');
         responseMessage.classList.add('text-red-600');
       }
@@ -88,3 +91,4 @@
   </script>
 </body>
 </html>
+
